@@ -1,0 +1,31 @@
+{
+  "name": "evologin",
+  "version": "0.0.1",
+  "description": "login service for evo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hobbit-armagedonu/evologin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hobbit-armagedonu/evologin/issues"
+  },
+  "homepage": "https://github.com/hobbit-armagedonu/evologin#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "chai": "^4.3.0",
+    "eslint": "^7.20.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "mocha": "^8.3.0",
+    "sinon": "^9.2.4"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "airbnb",
+  "rules":{
+        "indent": ["error", 4]
+  },
+  "env": {
+    "commonjs": true,
+    "node": true,
+    "mocha": true
+  }
+}
