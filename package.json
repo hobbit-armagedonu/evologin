@@ -4,7 +4,8 @@
   "description": "login service for evo",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-locally": "REDIS_URL=127.0.0.1 REDIS_PORT=6379 node index.js",
+    "test": "mocha test/unit"
   },
   "repository": {
     "type": "git",
@@ -18,7 +19,10 @@
   },
   "homepage": "https://github.com/hobbit-armagedonu/evologin#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
+    "express-basic-auth": "^1.2.0",
+    "redis": "^3.0.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
