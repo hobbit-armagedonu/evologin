@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 const express = require('express');
 const basicAuth = require('express-basic-auth');
+const bcrypt = require('bcryptjs');
 const { logger } = require('./config/logger');
 const userService = require('./src/userService');
 
@@ -19,7 +20,9 @@ async function authorize(username, password, callback) {
         return callback(null, false);
     }
 
-    if (basicAuth.safeCompare(password, userFromDB.password)) {
+    const compareResult = await bcrypt.compare(password, userFromDB.password);
+
+    if (compareResult) {
         return callback(null, true);
     }
     return callback(null, false);
