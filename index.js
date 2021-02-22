@@ -1,9 +1,11 @@
-/* eslint-disable no-bitwise */
 const express = require('express');
 const basicAuth = require('express-basic-auth');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { logger } = require('./config/logger');
 const userService = require('./src/userService');
+
+const jwtSecret = 'temporalSecret';
 
 const app = express();
 
@@ -28,6 +30,21 @@ async function authorize(username, password, callback) {
     return callback(null, false);
 }
 
+function verifyJWT(req, res, next) {
+    const header = req.headers.authorization;
+    if (!header) {
+        return res.status(401).send();
+    }
+    const token = header.split(' ')[1]; /* there should be no space in token */
+    jwt.verify(token, jwtSecret, (err, data) => {
+        if (err) {
+            return res.status(403).send();
+        }
+        req.jwtAuthorization = data;
+        return next();
+    });
+}
+
 app.use(express.json());
 app.use(basicAuth({
     authorizer: authorize,
@@ -39,8 +56,11 @@ curl -X POST -H "Content-Type: application/json" -d '{"name": "juzuf"}' http://l
 */
 
 app.post('/login', (req, res) => {
-    logger.debug(`Received a request ${JSON.stringify(req.body)}`);
-    res.send({ token: 'xxx' });
+    logger.debug(`Received a request to login from user ${req.auth.user}`);
+    const jwtToken = jwt.sign(req.auth.user, jwtSecret, {
+        algorithm: 'HS256',
+    });
+    res.send({ token: jwtToken });
 });
 
 app.post('/verify', (req, res) => {
