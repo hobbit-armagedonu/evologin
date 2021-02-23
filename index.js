@@ -15,7 +15,7 @@ async function authorize(username, password, callback) {
         userFromDB = await userService.getUser(username);
     } catch (e) {
         logger.error(`Basic authorization failed at calling the service with ${e.message}`);
-        return callback(null, false); /* think it over: should we unauthorize on error? */
+        return callback(null, false); /* TODO: think it over: should we unauthorize on error? */
     }
 
     if (!userFromDB) {
@@ -60,6 +60,7 @@ app.post('/login', (req, res) => {
     const jwtToken = jwt.sign(req.auth.user, jwtSecret, {
         algorithm: 'HS256',
     });
+    logger.debug(`Returning JWT: ${jwtToken}`);
     res.send({ token: jwtToken });
 });
 
