@@ -41,37 +41,6 @@ describe('login controller (index.js)', () => {
         sinon.restore();
     });
 
-    describe('authorize', () => {
-        it('calls-back true when username & password are ok', async () => {
-            sinon.stub(userService, 'getUser').resolves(hashedUser);
-            return controller.authorize(testUser.username, testUser.password, (err, data) => {
-                expect(data).to.be.equal(true);
-            });
-        });
-        it('calls-back false when user does not exist', async () => {
-            sinon.stub(userService, 'getUser').resolves(undefined);
-            return controller.authorize(testUser.username, testUser.password, (err, data) => {
-                expect(data).to.equal(false);
-            });
-        });
-        it('calls-back false when pwd does not match', async () => {
-            const otherPassword = await bcrypt.hash('0rkiZPo2nani@', 8);
-            hashedUser = {
-                username: 'john',
-                password: otherPassword,
-            };
-            sinon.stub(userService, 'getUser').resolves(hashedUser);
-            return controller.authorize(testUser.username, testUser.password, (err, data) => {
-                expect(data).to.equal(false);
-            });
-        });
-        it('calls-back false if password is not encrypted', async () => {
-            sinon.stub(userService, 'getUser').resolves(testUser);
-            return controller.authorize(testUser.username, testUser.password, (err, data) => {
-                expect(data).to.equal(false);
-            });
-        });
-    });
     describe('/login', () => {
         it('parses the basic authentication and calls service with username and compares passwords', async () => {
             const serviceStub = sinon.stub(userService, 'getUser').resolves(hashedUser);
@@ -92,8 +61,8 @@ describe('login controller (index.js)', () => {
                 .set('Authorization', `Basic ${base64Credentials}`)
                 .expect(200);
             const jwtSecret = 'temporalSecret';
-            const encodedUsername = await verify(response.body.token, jwtSecret);
-            expect(encodedUsername).to.be.equal(testUser.username);
+            const encodedUser = await verify(response.body.token, jwtSecret);
+            expect(encodedUser.username).to.eql(hashedUser.username);
         });
         it('returns 403 when no user', async () => {
             sinon.stub(userService, 'getUser').resolves(undefined);
@@ -108,7 +77,7 @@ describe('login controller (index.js)', () => {
             const base64Credentials = Buffer.from(`${testUser.username}:${testUser.password}`).toString('base64');
             await supertest(controller.app)
                 .post('/login')
-                .set('Authorization', `Basic ${base64Credentials}xxx`)
+                .set('Authorization', `Complex ${base64Credentials}`)
                 .expect(401);
         });
         it('returns 403 when password does not match', async () => {

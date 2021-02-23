@@ -1,5 +1,4 @@
 const express = require('express');
-const basicAuth = require('express-basic-auth');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { logger } = require('./config/logger');
@@ -9,25 +8,34 @@ const jwtSecret = 'temporalSecret';
 
 const app = express();
 
-async function authorize(username, password, callback) {
+async function myBasicAuth(req, res, next) {
+    if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+        return res.status(401).send();
+    }
+
+    const base64Credentials = req.headers.authorization.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    const [username, password] = credentials.split(':');
+
     let userFromDB;
     try {
         userFromDB = await userService.getUser(username);
     } catch (e) {
         logger.error(`Basic authorization failed at calling the service with ${e.message}`);
-        return callback(null, false); /* TODO: think it over: should we unauthorize on error? */
+        return res.status(400).send();
     }
 
     if (!userFromDB) {
-        return callback(null, false);
+        return res.status(401).send();
     }
 
     const compareResult = await bcrypt.compare(password, userFromDB.password);
 
     if (compareResult) {
-        return callback(null, true);
+        req.user = userFromDB;
+        return next();
     }
-    return callback(null, false);
+    return res.status(401).send();
 }
 
 function verifyJWT(req, res, next) {
@@ -46,18 +54,14 @@ function verifyJWT(req, res, next) {
 }
 
 app.use(express.json());
-app.use(basicAuth({
-    authorizer: authorize,
-    authorizeAsync: true,
-}));
 
 /*
 curl -X POST -H "Content-Type: application/json" -d '{"name": "juzuf"}' http://localhost:3001/login
 */
 
-app.post('/login', (req, res) => {
-    logger.debug(`Received a request to login from user ${req.auth.user}`);
-    const jwtToken = jwt.sign(req.auth.user, jwtSecret, {
+app.post('/login', myBasicAuth, (req, res) => {
+    logger.debug(`Received a request to login from user ${req.user.username}`);
+    const jwtToken = jwt.sign(req.user, jwtSecret, {
         algorithm: 'HS256',
     });
     logger.debug(`Returning JWT: ${jwtToken}`);
@@ -76,6 +80,5 @@ const server = app.listen(3001, () => {
 module.exports = {
     server,
     app,
-    authorize,
     userService,
 };

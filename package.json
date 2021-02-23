@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start-locally": "LOG_LEVEL=debug LOG_FILE=logs/evologin.log REDIS_HOST=127.0.0.1 REDIS_PORT=6379 node index.js",
-    "test": "REDIS_HOST=localhost REDIS_PORT=6379 LOG_LEVEL=debug mocha test/unit",
+    "test": "REDIS_HOST=127.0.0.1 REDIS_PORT=6379 LOG_LEVEL=debug mocha test/unit",
     "test:silent": "REDIS_HOST=localhost REDIS_PORT=6379 LOG_LEVEL=error mocha test/unit"
   },
   "repository": {
