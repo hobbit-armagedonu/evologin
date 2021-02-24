@@ -4,7 +4,11 @@ const jwt = require('jsonwebtoken');
 const { logger } = require('./config/logger');
 const userService = require('./src/userService');
 
-const jwtSecret = 'temporalSecret';
+const { JWT_KEY } = process.env;
+if (!JWT_KEY) {
+    logger.error('Fatal Error! JWT_KEY not defined in env variables. Shutting down.');
+    process.exit(1);
+}
 
 const app = express();
 
@@ -44,7 +48,7 @@ function verifyJWT(req, res, next) {
         return res.status(401).send();
     }
     const token = header.split(' ')[1]; /* there should be no space in token */
-    jwt.verify(token, jwtSecret, (err, data) => {
+    jwt.verify(token, JWT_KEY, (err, data) => {
         if (err) {
             return res.status(403).send();
         }
@@ -61,7 +65,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"name": "juzuf"}' http://l
 
 app.post('/login', myBasicAuth, (req, res) => {
     logger.debug(`Received a request to login from user ${req.user.username}`);
-    const jwtToken = jwt.sign(req.user, jwtSecret, {
+    const jwtToken = jwt.sign(req.user, JWT_KEY, {
         algorithm: 'HS256',
     });
     logger.debug(`Returning JWT: ${jwtToken}`);

@@ -60,8 +60,7 @@ describe('login controller (index.js)', () => {
                 .post('/login')
                 .set('Authorization', `Basic ${base64Credentials}`)
                 .expect(200);
-            const jwtSecret = 'temporalSecret';
-            const encodedUser = await verify(response.body.token, jwtSecret);
+            const encodedUser = await verify(response.body.token, process.env.JWT_KEY);
             expect(encodedUser.username).to.eql(hashedUser.username);
         });
         it('returns 403 when no user', async () => {
