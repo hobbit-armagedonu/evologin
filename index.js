@@ -10,6 +10,8 @@ if (!JWT_KEY) {
     process.exit(1);
 }
 
+const PORT = process.env.EVOLOGIN_PORT ? process.env.EVOLOGIN_PORT : 3001;
+
 const app = express();
 
 async function myBasicAuth(req, res, next) {
@@ -30,6 +32,7 @@ async function myBasicAuth(req, res, next) {
     }
 
     if (!userFromDB) {
+        logger.warn(`Username: ${username} not found in database.`);
         return res.status(401).send();
     }
 
@@ -61,6 +64,10 @@ app.use(express.json());
 
 /*
 curl -X POST -H "Content-Type: application/json" -d '{"name": "juzuf"}' http://localhost:3001/login
+
+curl -X POST -H 'Accept:application/json' -H 'Authorization:Basic BASE64_string' -i http://localhost:3000/login
+
+-H 'Authorization:Basic BASE64_string'
 */
 
 app.post('/login', myBasicAuth, (req, res) => {
@@ -77,8 +84,8 @@ app.post('/verify', (req, res) => {
     res.send({ valid: true });
 });
 
-const server = app.listen(3001, () => {
-    logger.info('Service started');
+const server = app.listen(PORT, () => {
+    logger.info(`Service started on port: ${PORT}`);
 });
 
 module.exports = {
