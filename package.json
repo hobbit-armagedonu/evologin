@@ -4,7 +4,7 @@
   "description": "login service for evo",
   "main": "index.js",
   "scripts": {
-    "start-locally": "JWT_KEY=\"whatever\" LOG_LEVEL=debug LOG_FILE=logs/evologin.log REDIS_HOST=127.0.0.1 REDIS_PORT=6379 node index.js",
+    "locally": "JWT_KEY=\"whatever\" LOG_LEVEL=debug LOG_FILE=logs/evologin.log REDIS_HOST=127.0.0.1 REDIS_PORT=6379 node index.js",
     "test": "JWT_KEY=\"unitTestKey\" REDIS_HOST=127.0.0.1 REDIS_PORT=6379 LOG_LEVEL=debug mocha test/unit",
     "test:silent": "JWT_KEY=\"unitTestKey\" REDIS_HOST=localhost REDIS_PORT=6379 LOG_LEVEL=error mocha test/unit"
   },
